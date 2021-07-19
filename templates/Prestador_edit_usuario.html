@@ -1,0 +1,95 @@
+{%extends 'layout_prestador.html' %}
+{% block body %}
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Tablero Principal</h1>
+                    </div>
+
+                    
+
+                    <!-- Container Fluid -->
+
+                    <div class="container-fluid">
+                          <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <div class="row">
+                            <div class="col-6 d-inline"><h6 class="m-0 font-weight-bold text-primary">Editar Usuario</h6></div>
+                            
+                        </div>        
+                        </div>
+                        <div class="card-body">
+                          <form class="user" action="/update_empleado_prestador/{{empleados.0}}" method="POST" onsubmit="return validaUsuario()">
+                 
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <input type="text" class="form-control form-control-user"  name="rut" id="rut"
+                                        placeholder="Rut" value="{{empleados.1}}">
+                                </div>
+                                <div class="col-sm-6">
+                                   <input class="form-control form-control-user" type="text" name="nombre" id="nombre" placeholder="Nombre" value="{{empleados.2}}">
+                                </div>
+                            </div>  
+
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                   <input class="form-control form-control-user" type="text" name="apellido_paterno" id="apellido_paterno" placeholder="Apellido Paterno" value="{{empleados.3}}">
+                                </div>
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                   <input class="form-control form-control-user" type="text" name="apellido_materno" id="apellido_materno" placeholder="Apellido Materno" value="{{empleados.4}}">
+                                </div>
+                            </div> 
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                   <input class="form-control form-control-user" type="text" name="telefono" id="telefono" placeholder="Teléfono" value="{{empleados.5}}">
+                                </div>
+                            <div class="col-sm-6">
+                                  <input class="form-control form-control-user" type="text" name="direccion" id="direccion" placeholder="Dirección"  value="{{empleados.6}}">
+                            </div>    
+                        </div>  
+                        <div class="form-group row">
+                            <div class="col-sm-12 mb-3 mb-sm-0">
+                                <div class="input-group">
+                                    <select class="form-control form-control-sm"  name="rol" id="rol" aria-label="ROL">
+                                      <option>Seleccione un ROL</option>
+                                      <option value="4" {% if empleados.7 == "4" %} selected {% endif %}>Guardia</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+
+                            <!-- <div class="col-sm-6 mb-3 mb-sm-0">
+                                <div class="input-group">
+                                    <select class="form-select form-select-sm"  name="rol" id="rol" aria-label="ROL" value="{{empleados.7}}">
+                                      <option selected>Empresa</option>
+                                      <option value="1">OPC 1</option>
+                                      <option value="2">OPC 2</option>
+                                      <option value="3">OPC 3</option>
+                                      <option value="4">OPC 4</option>
+                                    </select>
+                                </div>
+                            </div> -->
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <input class="form-control form-control-user" type="text" name="correo" placeholder="Correo electrónico" value="{{empleados.8}}">
+                            </div>
+                            <div class="col-sm-6">
+                                <input class="form-control form-control-user" type="password" name="password" placeholder="Contraseña" value="{{empleados.9}}">
+                            </div>
+                        </div> 
+                        <a class="btn btn-user btn-secondary" type="reset" href="/listar_usuario_prestador" >Cancelar</a>
+                        <button class="btn btn-user btn-success" type="submit">Editar</a>
+                    </form>
+				
+				</div>
+                <!-- <div class="modal-footer">
+                    <button class="btn btn-user btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-user btn-success" type="submit">Agregar</a>
+                </div> -->
+            </div>
+            
+{% endblock %}

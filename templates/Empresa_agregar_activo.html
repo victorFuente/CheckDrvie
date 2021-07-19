@@ -1,0 +1,325 @@
+{%extends 'layout_empresa.html' %}
+{% block body %}
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Tablero Activos</h1>
+                    </div>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <p>En Tablero de activos podrá agregar, editar o eliminar activos relacionados con una empresa.</p>
+                        </div>
+                    </div>
+
+                    <div class="container-fluid">
+                        <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <div class="row">
+                            <div class="col-6 d-inline"><h6 class="m-0 font-weight-bold text-primary">Activos</h6></div>
+                            <div class="col-6 d-inline text-right">
+                                <a href="#" data-toggle="modal" data-target="#ModalActivo" class="btn btn-user btn-primary"><i class="fas fa-plus-circle"></i> Agregar Activos</a>
+                                <a href="/cargaImagen"  class="btn btn-user btn-primary"><i class="fas fa-camera"></i> Agregar Activos OCR</a>
+                            </div>
+                        </div>        
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <td>patente</td>
+                                            <td>tipo_vehiculo</td>
+                                            <td>marca</td>
+                                            <td>modelo</td>   
+                                            <td>fecha_rev_tec</td>
+                                            <td>fecha_perm_circ</td>
+                                            <td>empresa</td> 
+                                            <td>prestador</td>     
+                                            <td>operaciones</td>
+                                          </tr>
+                                    </thead>
+                                    <!-- <tfoot>
+                                        <tr>
+                                            <td>rut</td>
+                                            <td>nombre</td>
+                                            <td>telefono</td>
+                                            <td>email</td>
+                                            <td>operaciones</td>
+                                        </tr>
+                                    </tfoot> -->
+                                    <tbody>
+                                        {% for activo in activos %}
+                                      <tr>
+                                        <td>{{activo.0}}</td>
+                                        <td>{{activo.1}}</td>
+                                        <td>{{activo.2}}</td>
+                                        <td>{{activo.3}}</td>   
+                                        <td>{{activo.4}}</td>
+                                        <td>{{activo.5}}</td>
+                                        <td>{{activo.6}}</td> 
+                                        <td>{{activo.7}}</td>     
+                                          <td>
+                                              <a href="/edit_activo_empresa/{{activo.0}}" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a>
+                                              <a href="/delete_activo_empresa/{{activo.0}}" class="btn btn-sm btn-danger btn-delete"><i class="fas fa-trash-alt"></i></a>
+                                          </td>
+                              
+                                      </tr>
+                                      {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer py-3">
+                            <div class="row">
+                                
+                            </div>        
+                        </div>
+                    </div>
+
+                    </div>
+
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+
+    <!--agregar usuario Modal-->
+        <div class="modal fade" id="ModalActivo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Agregar Nuevo Activo</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+				            <form class="user" action="/add_activo_empresa" method="POST" onsubmit=" return validaActivo() ">
+                            
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <input class="form-control form-control-user" type="text" name="patente" id="patente" placeholder="Patente">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input class="form-control form-control-user" type="text" name="tipo_vehiculo" id="tipo_vehiculo" placeholder="Tipo Vehículo">
+                                    </div>
+                                </div>  
+
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <input class="form-control form-control-user" type="text" name="marca" id="marca" placeholder="Marca">
+                                    </div>
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <input class="form-control form-control-user" type="text" name="modelo" id="modelo" placeholder="Modelo">
+                                    </div>
+                                </div> 
+                                
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <input class="form-control form-control-user" type="text" name="numero_motor" id="numero_motor" placeholder="Motor">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input class="form-control form-control-user" type="text" name="chasis" id="chasis" placeholder="Chasis">
+                                    </div>    
+                                </div>  
+
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <input class="form-control form-control-user" type="text" name="color" id="color" placeholder="Color">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input class="form-control form-control-user" type="text" name="año" id="año" placeholder="Año">
+                                    </div>
+                                </div> 
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <label for="fecha_rev_tec">Fecha de vencimiento revision tecnica</label>
+                                        <input class="form-control form-control-user" type="date" name="fecha_rev_tec" id="fecha_rev_tec" placeholder="Fecha Revisión Técnica">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label for="fecha_rev_tec">Fecha de vencimiento permiso de circulacion</label>
+                                        <input class="form-control form-control-user" type="date" name="fecha_perm_circ" id="fecha_perm_circ" placeholder="Fecha Permiso Circulación">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <input class="form-control form-control-user" type="text" name="combustible" id="combustible" placeholder="Combustible">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input class="form-control form-control-user" type="text" name="transmision" id="transmision" placeholder="transmision">
+                                    </div>
+                                </div> 
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <div class="input-group">
+                                            <select class="form-control form-control-sm"  name="empresa" id="empresa">
+                                                <option selected>Seleccione la empresa...</option>
+                                                <option value="0">no aplica</option>
+                                                {% for empresa in empresas %}
+                                                <option value="{{empresa.0}}">{{empresa.2}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <div class="input-group">
+                                            <select class="form-control form-control-sm"  name="proveedor" id="proveedor">
+                                                <option selected>Seleccione el prestador...</option>
+                                                <option value="0">no aplica</option>
+                                                {% for prestador in prestadores %}
+                                                <option value="{{prestador.0}}">{{prestador.2}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                
+
+				</div>
+                <div class="modal-footer">
+                    <button class="btn btn-user btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-user btn-success" type="submit">Guardar</a>
+                </div> 
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!--agregar activo ocr Modal-->
+    <div class="modal fade" id="ModalOcr" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Agregar Nuevo Activo OCR</h5>
+    
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="user" action="/escaneo" method="POST">
+                        <div class="col-lg-12"> 
+                            <input type="file" class="form-control" name="documento" id="documento">
+                            <label class="input-group-text btn-lg" for="documento/">Subir imagen</label> 
+                          
+                        </div>  
+
+                        <div class="col-lg-12 mb-5 mt-5 text-center border">
+                            
+                            <h2 class="title mb-5 mt-5">{{escaneo}}</h2>
+                                                   
+                        </div>
+    
+                        <!-- <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <input class="form-control form-control-user" type="text" name="patente" id="patente"
+                                    placeholder="Patente">
+                            </div>
+                            <div class="col-sm-6">
+                                <input class="form-control form-control-user" type="text" name="tipo_vehiculo"
+                                    id="tipo_vehiculo" placeholder="Tipo Vehículo">
+                            </div>
+                        </div> -->
+    
+                        <!-- <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <input class="form-control form-control-user" type="text" name="marca" id="marca"
+                                    placeholder="Marca">
+                            </div>
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <input class="form-control form-control-user" type="text" name="modelo" id="modelo"
+                                    placeholder="Modelo">
+                            </div>
+                        </div> -->
+    
+                        <!-- <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <input class="form-control form-control-user" type="text" name="numero_motor"
+                                    id="numero_motor" placeholder="Motor">
+                            </div>
+                            <div class="col-sm-6">
+                                <input class="form-control form-control-user" type="text" name="chasis" id="chasis"
+                                    placeholder="Chasis">
+                            </div>
+                        </div> -->
+    
+                        <!-- <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <input class="form-control form-control-user" type="text" name="color" id="color"
+                                    placeholder="Color">
+                            </div>
+                            <div class="col-sm-6">
+                                <input class="form-control form-control-user" type="text" name="año" id="año"
+                                    placeholder="Año">
+                            </div>
+                        </div> -->
+                        <!-- <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <label for="fecha_rev_tec">Fecha de vencimiento revision tecnica</label>
+                                <input class="form-control form-control-user" type="date" name="fecha_rev_tec"
+                                    id="fecha_rev_tec" placeholder="Fecha Revisión Técnica">
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="fecha_rev_tec">Fecha de vencimiento permiso de circulacion</label>
+                                <input class="form-control form-control-user" type="date" name="fecha_perm_circ"
+                                    id="fecha_perm_circ" placeholder="Fecha Permiso Circulación">
+                            </div>
+                        </div> -->
+                        <!-- <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <input class="form-control form-control-user" type="text" name="combustible"
+                                    id="combustible" placeholder="Combustible">
+                            </div>
+                            <div class="col-sm-6">
+                                <input class="form-control form-control-user" type="text" name="transmision"
+                                    id="transmision" placeholder="transmision">
+                            </div>
+                        </div> -->
+                        <!-- <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <div class="input-group">
+                                    <select class="form-control form-control-sm" name="empresa" id="empresa">
+                                        <option selected>Seleccione la empresa...</option>
+                                        <option value="0">no aplica</option>
+                                        {% for empresa in empresas %}
+                                        <option value="{{empresa.0}}">{{empresa.2}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <div class="input-group">
+                                    <select class="form-control form-control-sm" name="proveedor" id="proveedor">
+                                        <option selected>Seleccione el prestador...</option>
+                                        <option value="0">no aplica</option>
+                                        {% for prestador in prestadores %}
+                                        <option value="{{prestador.0}}">{{prestador.2}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+    
+                        </div> -->
+    
+    
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-user btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-user btn-primary btn-lg" id="consultar"><i class="fas fa-question-circle"></i> Consultar</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+   
+{% endblock %}

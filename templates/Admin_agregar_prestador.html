@@ -1,0 +1,145 @@
+
+ {%extends 'layout_admin.html' %}
+ {% block body %}              
+ 
+ <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Tablero Prestador</h1>
+                    </div>
+
+                    <div class="container-fluid">
+                        <div class="row">
+                            <p>En Tablero Prestador, podrá agregar, editar y eliminar prestador.</p>
+                        </div>
+                    </div>
+
+                    <div class="container-fluid">
+                        <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <div class="row">
+                            <div class="col-6 d-inline"><h6 class="m-0 font-weight-bold text-primary">Prestador</h6></div>
+                            <div class="col-6 d-inline text-right"><a href="#" data-toggle="modal" data-target="#ModalPrestador" class="btn btn-user btn-primary"><i class="fas fa-plus-circle"></i> Agregar Prestador</a></div>
+                        </div>        
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <td>Rut</td>
+                                            <td>Nombre</td>
+                                            <td>Teléfono</td>
+                                            <td>Email</td>
+                                            <td>Operaciones</td>
+                                        </tr>
+                                    </thead>
+                                    <!-- <tfoot>
+                                        <tr>
+                                            <td>rut</td>
+                                            <td>nombre</td>
+                                            <td>telefono</td>
+                                            <td>email</td>
+                                            <td>operaciones</td>
+                                        </tr>
+                                    </tfoot> -->
+                                    <tbody>
+                                        {% for prestador in prestador %}
+                                        <tr>
+                                            <td>{{prestador.1}}</td>
+                                            <td>{{prestador.2}}</td>
+                                            <td>{{prestador.3}}</td>
+                                            <td>{{prestador.4}}</td>
+                                            <td>
+                                                <form action="/edit_prestador/{{prestador.0}}"><button type="submit" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></button> 
+                                                <!-- <a onClick="Alternar(seccion1)" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a>  -->
+                                                <a href="/delete_prestador/{{prestador.0}}" class="btn btn-sm btn-danger btn-delete"><i class="fas fa-trash-alt"></i></a>
+                                                </form>
+                                            </td>                               
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer py-3">
+                            <div class="row">
+                                
+                            </div>        
+                        </div>
+                    </div>
+
+                    </div>
+
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+         
+    <!--agregar usuario Modal-->
+        <div class="modal fade" id="ModalPrestador" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Agregar Nuevo Prestador</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+				            <form class="user" action="/add_prestador" method="POST" onsubmit=" return validaPrestador() ">
+                            
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <input class="form-control form-control-user" type="text" name="rut" id="rut" placeholder="Rut">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input class="form-control form-control-user" type="text" name="nombre" id="nombre" placeholder="Nombre" >
+                                    </div>
+                                </div>  
+                                
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <input class="form-control form-control-user" type="text" name="telefono" id="telefono" placeholder="Teléfono">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input class="form-control form-control-user" type="email" name="correo" id="correo" placeholder="Correo">
+                                    </div>    
+                                </div> 
+
+                                <div class="form-group row">
+                                    <div class="col-sm-12 mb-3 mb-sm-0">
+                                        <input class="form-control form-control-user" type="text" name="direccion" id="direccion" placeholder="Dirección">
+                                    </div>
+                                </div> 
+                                <div class="form-group row">
+                                    <div class="col-sm-12 mb-3 mb-sm-0">
+                                        <div class="input-group">
+                                            <label>Seleccione una empresa</label>
+                                            <select class="form-control form-control-sm"  name="empresa" id="empresa">
+                                                <option value="0" selected>Seleccione</option>
+                                                {% for empresa in empresas %}
+                                                <option value="{{empresa.0}}">{{empresa.2}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>                                
+
+				</div>
+                <div class="modal-footer">
+                    <button class="btn btn-user btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-user btn-success" type="submit">Guardar</a>
+                </div> 
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% endblock %} 

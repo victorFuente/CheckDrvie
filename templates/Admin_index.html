@@ -1,0 +1,113 @@
+{%extends 'layout_admin.html' %}
+{% block body %}
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">¡Bienvenido!</h1>
+                    </div>
+                   <!-- Content Row -->
+    <div class="row">
+
+        <!-- USUARIOS -->
+        <div class="col-xl-4 col-md-4 col-sm-4 offset-md-2 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <a href="/listar_usuario">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-md font-weight-bold text-success text-uppercase mb-1">
+                                Usuarios</div>
+                                {% for usuario in usuarios %}
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{usuario.0}}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-auto">
+                            <i class="fa fa-user fa-2x text-gray-300"></i>
+                            
+                        </div>
+                    </div>
+                </div></a>
+            </div>
+        </div>
+         <!-- MINERA-->
+        <div class="ccol-xl-4 col-md-4 col-sm-4 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-md font-weight-bold text-warning text-uppercase mb-1">
+                                Empresas</div>
+                                {% for empresa in empresas %}
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{empresa.0}}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-auto">
+                            <i class="fa fa-bullseye fa-2x text-gray-300"></i>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>   
+    <div class="row">
+        <!-- PRESTADORES-->
+        <div class="col-xl-4 col-md-4 col-sm-4 offset-md-2 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-md font-weight-bold text-info text-uppercase mb-1">
+                                PRESTADORES
+                            </div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    {% for prestador in prestadores %}
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{prestador.0}}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fa fa-building fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+  <!-- ACTIVOS -->
+        <div class="col-xl-4 col-md-4 col-sm-4 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-md font-weight-bold text-primary text-uppercase mb-1">Activos</div>
+                            {% for activo in activos %}
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{activo.0}}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-auto">
+                            <i class="fa fa-car fa-2x text-gray-300" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Container Fluid -->
+
+    </div>
+<!-- /.container-fluid -->
+
+                  
+
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+{% endblock %}
+ 

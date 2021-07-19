@@ -1,0 +1,63 @@
+{%extends 'layout_admin.html' %}
+{% block body %}
+      
+      <!-- Begin Page Content -->
+      <div class="container-fluid"> 
+        
+        <!-- Page Heading -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+          <h1 class="h3 mb-0 text-gray-800">Centro de Alertas</h1>
+        </div>
+        <div class="container-fluid">
+          <div class="card shadow mb-4">
+            <div class="card-body">
+              <div class="table-responsive">
+              <table id="example" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th>Patente</th>
+                <th>Fecha Revisión Técnica</th>
+                <th>Fecha Permiso Circulación</th>
+                <th>Estado Revisión Técnica</th>
+                <th>Estado Permiso Circulación</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for mensaje in mensajes %}
+          <tr>
+              <td>{{ mensaje.1 }}</td>
+              <td>{{ mensaje.2 }}</td>
+              <td>{{ mensaje.4 }}</td>
+              {% if mensaje.3 == 'VENCIDO' %}
+
+              <td class="vencido" >{{ mensaje.3 }}</td>
+              {% elif mensaje.3 == 'ALERTA' %}
+              <td class="alerta-proxima">{{ mensaje.3 }}</td>
+              {% else %}
+              <td class="activo">{{ mensaje.3 }}</td>
+              {% endif %}
+
+              {% if mensaje.5 == 'VENCIDO' %}
+
+              <td class="vencido">{{ mensaje.5 }}</td>
+              {% elif mensaje.5 == 'ALERTA' %}
+              <td class="alerta-proxima">{{ mensaje.5 }}</td>
+              {% else %}
+              <td class="activo">{{ mensaje.5 }}</td>
+              
+              {% endif %}
+  
+          </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /.container-fluid --> 
+      
+    </div>
+    <!-- End of Main Content --> 
+  {% endblock %}

@@ -1,0 +1,17 @@
+{%extends 'layout_empresa.html' %}
+{% block body %}
+
+<form action="/validarPatente_2" method="POST" enctype="multipart/form-data">
+    <input type="file" name="documento">
+    <p>{{texto}}</p>
+    <br>
+    <br>
+    <button type="submit">
+        Enviar
+    </button>
+    <br>
+    <br>
+    <h1>{{texto}}</h1>
+</form>
+
+{% endblock %}

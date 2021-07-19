@@ -1,0 +1,71 @@
+{%extends 'layout_empresa.html' %}
+{% block body %}
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Tablero Principal</h1>
+                    </div>
+
+                    
+
+                    <!-- Container Fluid -->
+
+                    <div class="container-fluid">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                                <div class="row">
+                                    <div class="col-6 d-inline"><h6 class="m-0 font-weight-bold text-primary">Editar Prestador</h6></div>
+                                </div>        
+                        </div>
+                        <div class="card-body">
+                        <form action="/update_prestador_empresa/{{prestadores.0}}" method="POST" onsubmit=" return validaPrestador() ">
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <input type="text" class="form-control form-control-user"  name="rut" id="rut"
+                                        placeholder="Rut" value="{{prestadores.1}}">
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control form-control-user"  name="nombre" id="nombre"
+                                        placeholder="Nombre" value="{{prestadores.2}}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0"> 
+                                    <input type="text" class="form-control form-control-user" name="telefono"
+                                        id="telefono" placeholder="Teléfono" value="{{prestadores.3}}">
+                                </div>
+                                <div class="col-sm-6"> 
+                                    <input type="text" class="form-control form-control-user" name="correo"
+                                        id="correo" placeholder="Correo" value="{{prestadores.4}}">
+                                </div>
+
+                            </div>
+                                                            
+                            <div class="form-group row">
+                                <div class="col-sm-12 mb-3 mb-sm-0">
+                                    <input type="text" class="form-control form-control-user" name="direccion" id="direccion"
+                                    placeholder="Dirección" value="{{prestadores.5}}">
+                                </div>
+                             
+                            </div>
+                        </div>
+                        <div class="card-footer py-3">
+                            <div class="row">
+                                <div class="col-12 d-inline text-right">
+                                    <a class="btn btn-user btn-secondary" type="reset" href="/listar_prestador_empresa" >Cancelar</a>
+                                <button class="btn btn-user btn-success" type="submit">Editar</a>
+                                </form>
+                                </div>
+                            </div>        
+                        </div>
+                    </div>  
+                    </div>
+            
+            
+            </div>
+            </div>
+
+ {% endblock %}

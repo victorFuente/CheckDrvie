@@ -1,0 +1,33 @@
+
+
+<br>
+<br>
+<table>
+    <thead>
+        <tr>
+            <td>Id</td>
+            <td>Patente</td>
+            <td>Fecha revision tecnica</td>
+            <td>Fecha permiso de circulacion</td>
+            <td>Estado revision tecnica</td>
+            <td>Estado permiso de circulacion</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for alerta in alertas %}
+        <tr>
+            <td>{{ alerta.0 }}</td>
+            <td>{{ alerta.1 }}</td>
+            <td>{{ alerta.2 }}</td>
+            <td>{{ alerta.4 }}</td>
+            <td>{{ alerta.3 }}</td>
+            <td>{{ alerta.5 }}</td>
+
+        </tr>
+        {% endfor %}
+    </tbody>
+    {% for contador in contadores %}
+    <p>{{ contador.0 }}</p>
+        
+    {% endfor %}
+</table>
