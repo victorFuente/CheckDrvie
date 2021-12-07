@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>titulo</title>
+</head>
+<body>
+	<table align="center" style="text-align: center" border="1" width="700" height="500">
+		<tr>
+			<td>
+            <img style="margin:0 auto;" src="https://prueba-check.herokuapp.com/static/img/cd-ver.png">
+			<h1 style="font-family: Impact, Haettenschweiler, 'Franklin Gothic Bold', 'Arial Black', 'sans-serif'; color: #000;">Checkdriver</h1>
+			<p style="font-family:Gotham, 'Helvetica Neue', Helvetica, Arial, 'sans-serif'; font-weight: bold; color: #000;">Código de recuperación de clave</p>
+			<br>
+			{% for dato in datos %}
+
+			<p style="font-family:Gotham, 'Helvetica Neue', Helvetica, Arial, 'sans-serif'; font-size: 16px; font-weight: bold; color: #000;">{{ dato.15 }}</p>
+
+			{% endfor %}
+                
+                
+            <p style="font-family:Gotham, 'Helvetica Neue', Helvetica, Arial, 'sans-serif'; font-size: 16px; font-weight: bold; color: #000;">Copie el código y peguélo en la página de validación de Checkdriver</p>    
+			</td>	
+		</tr>
+	</table>
+
+
+</body>
+</html>

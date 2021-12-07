@@ -47,7 +47,7 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="/prestador">
                         <i class="fas fa-fw fa-tachometer-alt"></i>
-                        <span>tablero Principal</span></a>
+                        <span>Tablero Principal</span></a>
                 </li>
     
                 <!-- Divider -->
@@ -105,8 +105,9 @@
                             <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-bell fa-fw"></i>
-                                <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter">2+</span>
+                                {% for contador in contadores %}
+                                <span class="badge badge-danger badge-counter"> {{contador.0}} </span>
+                                {% endfor %}
                             </a>
                             <!-- Dropdown - Alerts -->
                             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -114,87 +115,109 @@
                                 <h6 class="dropdown-header-check">
                                     Centro de Alertas
                                 </h6>
+                                {% for alerta in alertas %}
+
+                                {% if alerta.3 == 'VENCIDO' and alerta.5 == 'VENCIDO' %}
+                                <!-- codigo Vencimiento -->
                                 <a class="dropdown-item d-flex align-items-center" href="/blank">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-warning">
-                                            <i class="fas fa-info-circle text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">7 Abril 2021</div>
-                                        Pre Alerta: Vehículo CCXX-34 con Revisión Técnica Pronta a Vencer.
-                                        Reservar hora en Planta de <strong>Revisión técnica</strong> 
-                                    </div>
-                                </a>
-                                  <a class="dropdown-item d-flex align-items-center" href="/blank">
                                     <div class="mr-3">
                                         <div class="icon-circle bg-danger">
                                             <i class="fas fa-exclamation-triangle text-white"></i>
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="small text-gray-500">4 Abril 2021</div>
-                                        Alerta: Vehículo HDPT-34 con Revisión Técnica Vencida.
-                                        Regularizar Situación
+                                        <div class="small text-gray-500"></div>
+                                        Alerta: Vehículo {{ alerta.1 }} con Revisión Técnica Vencida y Permiso de
+                                        Circulación Vencida.
+                                        <strong>Regularizar Situación</strong>
+                                        
                                     </div>
                                 </a>
-                              
-                                <a class="dropdown-item text-center small text-gray-500" href="/blank">Mostrar Todas las Alertas</a>
+                                {% elif alerta.3 == 'VENCIDO'%}
+                                <!-- codigo Vencimiento -->
+                                <a class="dropdown-item d-flex align-items-center" href="/blank">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-danger">
+                                            <i class="fas fa-exclamation-triangle text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500"></div>
+                                        Alerta: Vehículo {{ alerta.1 }} con Revisión Técnica Vencida.
+                                        <strong>Regularizar Situación</strong>
+                                        
+                                    </div>
+                                </a>
+                                {% elif alerta.5 == 'VENCIDO' %}
+                                <!-- codigo Vencimiento -->
+                                <a class="dropdown-item d-flex align-items-center" href="/blank">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-danger">
+                                            <i class="fas fa-exclamation-triangle text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500"></div>
+                                        Alerta: Vehículo {{ alerta.1 }} con Permiso de Circulación Vencida.
+                                        <strong>Regularizar Situación</strong>
+                                        
+                                    </div>
+                                </a>
+
+                                {% elif alerta.3 == 'ALERTA' and alerta.5 == 'ALERTA' %}
+                                <a class="dropdown-item d-flex align-items-center" href="/blank">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-warning">
+                                            <i class="fas fa-info-circle text-white"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="small text-gray-500"></div>
+                                        Pre Alerta: Vehículo {{ alerta.1 }} con Revisión Técnica Pronta a Vencer y Permiso de Circulación Pronto a Vencer.
+                                        <strong>Regularizar Situación</strong> 
+                                    </div>
+                                    
+                                </a>
+                                {% elif alerta.3 == 'ALERTA'%}
+                                <a class="dropdown-item d-flex align-items-center" href="/blank">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-warning">
+                                            <i class="fas fa-info-circle text-white"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="small text-gray-500"></div>
+                                        Pre Alerta: Vehículo {{ alerta.1 }} con Revisión Técnica Pronta a Vencer.
+                                        <strong>Regularizar Situación</strong> 
+                                    </div>
+                                    
+                                </a>
+                                {% elif alerta.5 == 'ALERTA'%}
+                                <a class="dropdown-item d-flex align-items-center" href="/blank">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-warning">
+                                            <i class="fas fa-info-circle text-white"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="small text-gray-500"></div>
+                                        Pre Alerta: Vehículo {{ alerta.1 }} con Permiso de  Circulación Pronto a Vencer.
+                                        <strong>Regularizar Situación</strong> 
+                                    </div>
+                                    
+                                </a>
+                                {% endif %}
+                                {% endfor %}
+
+                                <a class="dropdown-item text-center small text-gray-500" href="/alerta_prestador">Mostrar Todas
+                                    las Alertas</a>
                             </div>
                         </li>
 
-                        <!-- Nav Item - Messages -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-envelope fa-fw"></i>
-                                <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter">7</span>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="messagesDropdown">
-                                <h6 class="dropdown-header-check">
-                                    Centro de Mensajería
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="/blank">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="{{ url_for('static', filename='img/undraw_profile_1.svg')}}"
-                                            alt="">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div class="font-weight-bold">
-                                        <div class="text-truncate">Ingreso de Vehículo </div>
-                                        <div class="small text-gray-500">Guardia 1 · 58m</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="/blank">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="{{ url_for('static', filename='img/undraw_profile_2.svg')}}"
-                                            alt="">
-                                        <div class="status-indicator"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Ingreso de Vehículo </div>
-                                        <div class="small text-gray-500">Guardia 2 · 58d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="/blank">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="{{ url_for('static', filename='img/undraw_profile_3.svg')}}"
-                                            alt="">
-                                        <div class="status-indicator bg-warning"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Ingreso de Vehículo </div>
-                                        <div class="small text-gray-500">Guardia 1 · 2d</div>
-                                    </div>
-                                </a>
-                              
-                                <a class="dropdown-item text-center small text-gray-500" href="/blank">Leer más mensajes</a>
-                            </div>
-                        </li>
-
+                    
                         <div class="topbar-divider d-none d-sm-block"></div>
 
                         <!-- Nav Item - User Information -->

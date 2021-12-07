@@ -36,8 +36,7 @@
                                             <td>modelo</td>   
                                             <td>fecha_rev_tec</td>
                                             <td>fecha_perm_circ</td>
-                                            <td>empresa</td> 
-                                            <td>prestador</td>     
+                                            <td>Prestador</td>       
                                             <td>operaciones</td>
                                           </tr>
                                     </thead>
@@ -53,14 +52,13 @@
                                     <tbody>
                                         {% for activo in activos %}
                                       <tr>
-                                        <td>{{activo.0}}</td>
                                         <td>{{activo.1}}</td>
                                         <td>{{activo.2}}</td>
-                                        <td>{{activo.3}}</td>   
-                                        <td>{{activo.4}}</td>
+                                        <td>{{activo.3}}</td>
+                                        <td>{{activo.4}}</td>   
                                         <td>{{activo.5}}</td>
-                                        <td>{{activo.6}}</td> 
-                                        <td>{{activo.7}}</td>     
+                                        <td>{{activo.6}}</td>
+                                        <td>{{activo.7}}</td>      
                                           <td>
                                               <a href="/edit_activo_empresa/{{activo.0}}" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a>
                                               <a href="/delete_activo_empresa/{{activo.0}}" class="btn btn-sm btn-danger btn-delete"><i class="fas fa-trash-alt"></i></a>

@@ -1,0 +1,14 @@
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<p>{{ message }}</p>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<form action="/reset/{{data.0}}" method="POST">
+    <!-- <input type="text" name="password" placeholder="password"> -->
+    <input type="text" name="password2" placeholder="password2">
+    <br>
+    <button type="submit"> reset contraseña</button>
+</form>

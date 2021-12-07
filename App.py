@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, Response
 from flask_mysqldb import MySQL
 from flask_bcrypt import bcrypt
+from flask_mail import Mail, Message
 #nuevas librerias ##Response
 import io
 import xlwt
@@ -22,29 +23,66 @@ import imutils
 #para reemplazar caracteres
 import re
 import numpy as np
+#token
+import uuid
 
 app = Flask(__name__)
 #conexion a mysql
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD '] = ''
-app.config['MYSQL_DB'] = 'checkdriver3'
+app.config['MYSQL_DB'] = 'check'
 mysql = MySQL(app)
+
+#configuracion correo
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'checkdrive9@gmail.com'
+app.config['MAIL_PASSWORD'] = 'Enero.2021'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+
+mail = Mail(app)
 
 # SEMILLA PARA ENCRIPTAR LA CONTRASEÑA
 semilla = bcrypt.gensalt()
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
 
-
 # contraseña de la session
 app.secret_key = 'clavemitica'
-
-
 
 # RUTA DE INICIO
 @app.route('/')
 def Index():
+        if 'nombre' in session:
+          
+           id_permiso = session['id_permiso']
+           if (id_permiso == 1):
+              
+              return redirect(url_for('IndexAdmin'))
+
+           elif (id_permiso == 2):
+              
+              return redirect(url_for('IndexMinera')) 
+
+           elif (id_permiso == 3):
+              
+              return redirect(url_for('IndexPrestador'))
+
+           elif (id_permiso == 4):
+              
+              return redirect(url_for('IndexGuardia'))
+
+           else:           
+              return render_template('index.html')    
+        else: 
+          session.clear()            
+          return render_template('index.html')
+
+# RUTA DE INICIO
+@app.route('/inicioSesion')
+def InicioSesion():
         if 'nombre' in session:
           
            id_permiso = session['id_permiso']
@@ -152,15 +190,15 @@ def Login():
               return render_template('Usuario_index.html')
 
             else:
-              flash("¡Datos ingresados incorrectamente!", "alert-warning")
+              flash("¡Datos ingresados incorrectamente!", "alert-danger")
               return render_template('login.html')
             
         else:
             # mensaje
-            flash("¡Datos ingresados incorrectamente!", "alert-warning")
+            flash("¡Datos ingresados incorrectamente!", "alert-danger")
             return render_template('login.html')
       else:
-        flash("Ingrese correo y contraseña", "alert-warning")
+        flash("Ingrese correo y contraseña", "alert-danger")
         # return redirect(url_for('/'))
         return render_template('login.html')
 
@@ -182,7 +220,7 @@ def Salir():
     data = cur.fetchall()
     return render_template('index.html', empresas = data)
   else:                 
-    return render_template('login.html')
+    return render_template('index.html')
 
 ################################################### CIERRA SESSION ######################################################
 
@@ -204,10 +242,9 @@ def IndexAdmin():
     data3 = cur.fetchall()
     cur.execute('Select count(id_activo) from activos where habilitado = 1')
     data4 = cur.fetchall()
-    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'')
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'')
     data5 = cur.fetchall()
-    cur.execute('SELECT * from (SELECT id_activo,patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"' LIMIT 6')
-    #cur.execute('SELECT id_activo,patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_activo LIMIT 6')
+    cur.execute('SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_activo LIMIT 6')
     data6 = cur.fetchall()
     return render_template('Admin_index.html', empresas = data, usuarios = data2, prestadores = data3, activos = data4, contadores = data5, alertas = data6)
   else:                 
@@ -221,8 +258,8 @@ def listar_empresa():
   #### CONSULTA PARA TRAER LOS DATOS DE LAS EMPRESAS ASOCIADAS ####
     cur = mysql.connection.cursor()
     cur.execute('Select * from empresa where habilitado = 1')
-    data = cur.fetchall()
-    cur.execute('SELECT count(id_activo),patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'REVISION VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA POR VENCIMIENTO'"' ELSE 3 END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'PERMISO VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA POR VENCIMIENTO'"' ELSE 3 END END FROM activos WHERE habilitado = 1')
+    data = cur.fetchall() 
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'')
     data5 = cur.fetchall()
     cur.execute('SELECT id_activo,patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_activo LIMIT 6')
     data6 = cur.fetchall()
@@ -251,7 +288,11 @@ def get_empresa(id):
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM empresa WHERE id_Empresa = {0}'.format(id))
     data = cur.fetchall()
-    return render_template('Admin_edit_empresa.html', empresas = data[0])
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'')
+    data5 = cur.fetchall()
+    cur.execute('SELECT id_activo,patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_activo LIMIT 6')
+    data6 = cur.fetchall()
+    return render_template('Admin_edit_empresa.html', empresas = data[0], contadores = data5, alertas = data6)
 
 # Modifico la empresa seleccionada
 @app.route('/update_empresa/<id>', methods = ['POST'])
@@ -299,17 +340,14 @@ def listar_prestador():
     cur.execute('Select * from empresa where habilitado = 1')
     dataEmpresa = cur.fetchall()
     cur = mysql.connection.cursor()
-    return render_template('Admin_agregar_prestador.html', prestador = data, empresas = dataEmpresa)
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'')
+    data5 = cur.fetchall()
+    cur.execute('SELECT id_activo,patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_activo LIMIT 6')
+    data6 = cur.fetchall()
+    return render_template('Admin_agregar_prestador.html', prestador = data, empresas = dataEmpresa, contadores = data5, alertas = data6)
   else:                 
     return render_template('login.html') 
 
-#@app.route('/Minera')
-#def IndexMinera():
-    #cur = mysql.connection.cursor()
-    #cur.execute('Select * from prestador where habilitado = 1')
-    #data = cur.fetchall()
-    #return redirect(url_for('agregar_prestador'))
-    #return render_template('indexEmpresa.html', prestadores = data)
 
 #Crea prestadores
 @app.route('/add_prestador' ,methods=['POST'])
@@ -337,7 +375,11 @@ def get_prestador(id):
     cur.execute('Select * from empresa where habilitado = 1')
     dataEmpresa = cur.fetchall()
     cur = mysql.connection.cursor()
-    return render_template('Admin_edit_prestador.html', prestadores = data[0], empresas = dataEmpresa)
+    cur.execute('SELECT count(id_activo),patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1')
+    data5 = cur.fetchall()
+    cur.execute('SELECT id_activo,patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_activo LIMIT 6')
+    data6 = cur.fetchall()
+    return render_template('Admin_edit_prestador.html', prestadores = data[0], empresas = dataEmpresa, contadores = data5, alertas =data6)
 
 # Modifica prestador
 @app.route('/update_prestador/<id>', methods = ['POST'])
@@ -386,7 +428,8 @@ def listar_activo():
   if 'nombre' in session:
   #### CONSULTA PARA TRAER LOS DATOS DE LAS EMPRESAS ASOCIADAS ####
     cur = mysql.connection.cursor()
-    cur.execute('select activos.patente, activos.tipo_vehiculo, activos.marca, activos.modelo, activos.fecha_rev_tec, activos.fecha_perm_circ, empresa.nombre, prestador.nombre from activos LEFT JOIN empresa ON activos.id_empresa = empresa.id_empresa LEFT JOIN prestador on activos.id_prestador = prestador.id_prestador WHERE activos.habilitado = 1')
+    ##cur.execute('Select * from activos where habilitado = 1')
+    cur.execute('Select a.id_activo, a.patente, a.tipo_vehiculo, a.marca, a.modelo, a.fecha_rev_tec, a.fecha_perm_circ, e.nombre, p.nombre from activos a INNER JOIN empresa e on e.id_empresa = a.id_empresa INNER JOIN prestador p on p.id_prestador = a.id_prestador where a.habilitado = 1')
     data = cur.fetchall()
     cur = mysql.connection.cursor()
     cur.execute('Select * from empresa where habilitado = 1')
@@ -394,7 +437,11 @@ def listar_activo():
     cur = mysql.connection.cursor()
     cur.execute('Select * from prestador where habilitado = 1')
     dataPrestador = cur.fetchall()
-    return render_template('Admin_agregar_activo.html', activos = data, empresas= dataEmpresa, prestadores = dataPrestador)
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'')
+    data5 = cur.fetchall()
+    cur.execute('SELECT id_activo,patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_activo LIMIT 6')
+    data6 = cur.fetchall()
+    return render_template('Admin_agregar_activo.html', activos = data, empresas= dataEmpresa, prestadores = dataPrestador, contadores = data5, alertas= data6)
   else:                 
     return render_template('login.html')    
 
@@ -437,7 +484,11 @@ def get_activo(id):
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM activos WHERE id_activo = %s', [id])
     data = cur.fetchall()
-    return render_template('Admin_edit_activo.html', activos = data[0])
+    cur.execute('SELECT count(id_activo),patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1')
+    data5 = cur.fetchall()
+    cur.execute('SELECT id_activo,patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_activo LIMIT 6')
+    data6 = cur.fetchall()
+    return render_template('Admin_edit_activo.html', activos = data[0], contadores = data5, alertas = data6)
 
 #Edito activo
 @app.route('/update_activo/<id>', methods = ['POST'])
@@ -503,7 +554,11 @@ def listar_usuario():
     cur = mysql.connection.cursor()
     cur.execute('Select * from empresa where habilitado = 1')
     datos = cur.fetchall()
-    return render_template('Admin_agregar_usuario.html', empresas = datos, empleados = data)
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'')
+    data5 = cur.fetchall()
+    cur.execute('SELECT id_activo,patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_activo LIMIT 6')
+    data6 = cur.fetchall()
+    return render_template('Admin_agregar_usuario.html', empresas = datos, empleados = data, contadores = data5, alertas = data6)
   else:                 
     return render_template('login.html')
 
@@ -569,7 +624,11 @@ def get_edit_usuario(id):
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM empleados WHERE id_empleado = {0}'.format(id))
     data = cur.fetchall()
-    return render_template('Admin_edit_usuario.html', empleados = data[0])
+    cur.execute('SELECT count(id_activo),patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1')
+    data5 = cur.fetchall()
+    cur.execute('SELECT id_activo,patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_activo LIMIT 6')
+    data6 = cur.fetchall()
+    return render_template('Admin_edit_usuario.html', empleados = data[0], contadores = data5, alertas = data6)
 
 # Actualizar Usuario
 @app.route('/update_empleado/<id>',  methods = ['POST'])
@@ -624,7 +683,11 @@ def auditoria():
     cur = mysql.connection.cursor()
     cur.execute('Select * from auditoria')
     data = cur.fetchall()
-    return render_template('Admin_auditoria.html', auditorias = data)
+    cur.execute('SELECT count(id_activo),patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1')
+    data5 = cur.fetchall()
+    cur.execute('SELECT id_activo,patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_activo LIMIT 6')
+    data6 = cur.fetchall()
+    return render_template('Admin_auditoria.html', auditorias = data, contadores = data5, alertas = data6)
 
     #lista informacion tabla auditoria_usuario
 @app.route('/auditoria_usuario')
@@ -632,7 +695,11 @@ def auditoria_usuario():
     cur = mysql.connection.cursor()
     cur.execute('Select * from auditoria_usuario')
     data = cur.fetchall()
-    return render_template('Admin_auditoria_usuario.html', usuarios = data)
+    cur.execute('SELECT count(id_activo),patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1')
+    data5 = cur.fetchall()
+    cur.execute('SELECT id_activo,patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_activo LIMIT 6')
+    data6 = cur.fetchall()
+    return render_template('Admin_auditoria_usuario.html', usuarios = data, contadores = data5, alertas = data6)
 
     #descargar excel auditoria
 @app.route('/download/report/excel')
@@ -719,7 +786,16 @@ def IndexMinera():
     data3 = cur.fetchall()
     cur.execute('Select count(id_activo) from activos where habilitado = 1 AND id_empresa = %s', [session['id_empresa']])
     data4 = cur.fetchall()
-    return render_template('Empresa_index.html', usuarios = data2, prestadores = data3, activos = data4)
+    # cur.execute('SELECT count(id_activo),patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_empresa = %s', [session['id_empresa']])
+    # data5 = cur.fetchall()
+    # cur.execute('SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_empresa = %s AND id_activo LIMIT 6', [session['id_empresa']])
+    # data6 = cur.fetchall()
+    cur.execute('SELECT * from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"' LIMIT 6', [session['id_empresa']])
+    data6 = cur.fetchall()
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'', [session['id_empresa']])
+    data5 = cur.fetchall()
+
+    return render_template('Empresa_index.html', usuarios = data2, prestadores = data3, activos = data4, contadores = data5, alertas = data6)
   else:                 
     return render_template('login.html')
 
@@ -736,7 +812,11 @@ def listar_prestador_empresa():
     cur.execute('Select * from empresa where habilitado = 1 AND id_empresa = %s', [session['id_empresa']])
     dataEmpresa = cur.fetchall()
     cur = mysql.connection.cursor()
-    return render_template('Empresa_agregar_prestador.html', prestador = data, empresas = dataEmpresa)
+    cur.execute('SELECT * from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"' LIMIT 6', [session['id_empresa']])
+    data6 = cur.fetchall()
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'', [session['id_empresa']])
+    data5 = cur.fetchall()
+    return render_template('Empresa_agregar_prestador.html', prestador = data, empresas = dataEmpresa, contadores = data5, alertas = data6)
   else:                 
     return render_template('login.html') 
 
@@ -767,7 +847,11 @@ def get_prestador_empresa(id):
     cur.execute('Select * from empresa where habilitado = 1')
     dataEmpresa = cur.fetchall()
     cur = mysql.connection.cursor()
-    return render_template('Empresa_edit_prestador.html', prestadores = data[0], empresas = dataEmpresa)
+    cur.execute('SELECT * from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"' LIMIT 6', [session['id_empresa']])
+    data6 = cur.fetchall()
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'', [session['id_empresa']])
+    data5 = cur.fetchall()
+    return render_template('Empresa_edit_prestador.html', prestadores = data[0], empresas = dataEmpresa, contadores = data5, alertas = data6)
 
 # Modifica prestador
 @app.route('/update_prestador_empresa/<id>', methods = ['POST'])
@@ -812,7 +896,8 @@ def listar_activo_empresa():
   if 'nombre' in session:
   #### CONSULTA PARA TRAER LOS DATOS DE LAS EMPRESAS ASOCIADAS ####
     cur = mysql.connection.cursor()
-    cur.execute('select activos.patente, activos.tipo_vehiculo, activos.marca, activos.modelo, activos.fecha_rev_tec, activos.fecha_perm_circ, empresa.nombre, prestador.nombre from activos LEFT JOIN empresa ON activos.id_empresa = empresa.id_empresa LEFT JOIN prestador on activos.id_prestador = prestador.id_prestador WHERE activos.habilitado = 1 AND activos.id_empresa = %s', [session['id_empresa']])
+    ##cur.execute('Select * from activos where habilitado = 1 AND id_empresa = %s', [session['id_empresa']])
+    cur.execute('Select a.id_activo, a.patente, a.tipo_vehiculo, a.marca, a.modelo, a.fecha_rev_tec, a.fecha_perm_circ, p.nombre from activos a INNER JOIN empresa e on e.id_empresa = a.id_empresa INNER JOIN prestador p on p.id_prestador = a.id_prestador where a.habilitado = 1 AND a.id_empresa = %s', [session['id_empresa']])
     data = cur.fetchall()
     cur = mysql.connection.cursor()
     cur.execute('Select * from empresa where habilitado = 1 AND id_empresa = %s', [session['id_empresa']])
@@ -820,7 +905,11 @@ def listar_activo_empresa():
     cur = mysql.connection.cursor()
     cur.execute('Select * from prestador where habilitado = 1 AND id_empresa = %s', [session['id_empresa']])
     dataPrestador = cur.fetchall()
-    return render_template('Empresa_agregar_activo.html', activos = data, empresas= dataEmpresa, prestadores = dataPrestador)
+    cur.execute('SELECT * from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"' LIMIT 6', [session['id_empresa']])
+    data6 = cur.fetchall()
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'', [session['id_empresa']])
+    data5 = cur.fetchall()
+    return render_template('Empresa_agregar_activo.html', activos = data, empresas= dataEmpresa, prestadores = dataPrestador, contadores = data5, alertas = data6)
   else:                 
     return render_template('login.html')    
 
@@ -863,7 +952,11 @@ def get_activo_empresa(id):
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM activos WHERE id_activo = %s', [id])
     data = cur.fetchall()
-    return render_template('Empresa_edit_activo.html', activos = data[0])
+    cur.execute('SELECT * from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"' LIMIT 6', [session['id_empresa']])
+    data6 = cur.fetchall()
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'', [session['id_empresa']])
+    data5 = cur.fetchall()
+    return render_template('Empresa_edit_activo.html', activos = data[0], contadores = data5, alertas = data6)
 
 #Edito activo
 @app.route('/update_activo_empresa/<id>', methods = ['POST'])
@@ -929,7 +1022,11 @@ def listar_usuario_empresa():
     cur = mysql.connection.cursor()
     cur.execute('Select * from prestador where habilitado = 1 AND id_empresa = %s', [session['id_empresa']])
     datos = cur.fetchall()
-    return render_template('Empresa_agregar_usuario.html', empresas = datos, empleados = data)
+    cur.execute('SELECT * from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"' LIMIT 6', [session['id_empresa']])
+    data6 = cur.fetchall()
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'', [session['id_empresa']])
+    data5 = cur.fetchall()
+    return render_template('Empresa_agregar_usuario.html', empresas = datos, empleados = data, contadores = data5, alertas = data6)
   else:                 
     return render_template('login.html')
 
@@ -996,7 +1093,11 @@ def get_edit_usuario_empresa(id):
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM empleados WHERE id_empleado = {0}'.format(id))
     data = cur.fetchall()
-    return render_template('Empresa_edit_usuario.html', empleados = data[0])
+    cur.execute('SELECT * from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"' LIMIT 6', [session['id_empresa']])
+    data6 = cur.fetchall()
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'', [session['id_empresa']])
+    data5 = cur.fetchall()
+    return render_template('Empresa_edit_usuario.html', empleados = data[0], contadores = data5, alertas = data6)
 
 # Actualizar Usuario
 @app.route('/update_empleado_empresa/<id>',  methods = ['POST'])
@@ -1053,7 +1154,11 @@ def IndexPrestador():
     data2 = cur.fetchall()
     cur.execute('Select count(id_activo) from activos where habilitado = 1 AND id_prestador = %s', [session['id_prestador']])
     data4 = cur.fetchall()
-    return render_template('Prestador_index.html', usuarios = data2, activos = data4)
+    cur.execute('SELECT count(id_activo),patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_prestador = %s', [session['id_prestador']])
+    data5 = cur.fetchall()
+    cur.execute('SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_prestador = %s AND id_activo LIMIT 6', [session['id_prestador']])
+    data6 = cur.fetchall()
+    return render_template('Prestador_index.html', usuarios = data2, activos = data4, contadores = data5, alertas = data6)
   else:                 
     return render_template('login.html')
 
@@ -1067,7 +1172,11 @@ def listar_activo_prestador():
     cur = mysql.connection.cursor()
     cur.execute('Select * from activos where habilitado = 1 AND id_prestador = %s', [session['id_prestador']])
     data = cur.fetchall()
-    return render_template('Prestador_agregar_activo.html', activos = data)
+    cur.execute('SELECT count(id_activo),patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_prestador = %s', [session['id_prestador']])
+    data5 = cur.fetchall()
+    cur.execute('SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_prestador = %s AND id_activo LIMIT 6', [session['id_prestador']])
+    data6 = cur.fetchall()
+    return render_template('Prestador_agregar_activo.html', activos = data, contadores = data5, alertas = data6)
   else:                 
     return render_template('login.html')    
 
@@ -1110,7 +1219,11 @@ def get_activo_prestador(id):
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM activos WHERE id_activo = %s', [id])
     data = cur.fetchall()
-    return render_template('Prestador_edit_activo.html', activos = data[0])
+    cur.execute('SELECT count(id_activo),patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_prestador = %s', [session['id_prestador']])
+    data5 = cur.fetchall()
+    cur.execute('SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_prestador = %s AND id_activo LIMIT 6', [session['id_prestador']])
+    data6 = cur.fetchall()
+    return render_template('Prestador_edit_activo.html', activos = data[0], contadores = data5, alertas = data6)
 
 #Edito activo
 @app.route('/update_activo_prestador/<id>', methods = ['POST'])
@@ -1172,8 +1285,12 @@ def listar_usuario_prestador():
   #### CONSULTA PARA TRAER LOS DATOS DE LAS EMPRESAS ASOCIADAS ####
     cur = mysql.connection.cursor()
     cur.execute('Select * from empleados where habilitado = 1 AND id_prestador = %s', [session['id_prestador']])
-    data = cur.fetchall()   
-    return render_template('Prestador_agregar_usuario.html', empleados = data)
+    data = cur.fetchall() 
+    cur.execute('SELECT count(id_activo),patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_prestador = %s', [session['id_prestador']])
+    data5 = cur.fetchall()
+    cur.execute('SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_prestador = %s AND id_activo LIMIT 6', [session['id_prestador']])
+    data6 = cur.fetchall()  
+    return render_template('Prestador_agregar_usuario.html', empleados = data, contadores = data5, alertas = data6)
   else:                 
     return render_template('login.html')
 
@@ -1233,7 +1350,11 @@ def get_edit_usuario_prestador(id):
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM empleados WHERE id_empleado = {0}'.format(id))
     data = cur.fetchall()
-    return render_template('Prestador_edit_usuario.html', empleados = data[0])
+    cur.execute('SELECT count(id_activo),patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_prestador = %s', [session['id_prestador']])
+    data5 = cur.fetchall()
+    cur.execute('SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1 AND id_prestador = %s AND id_activo LIMIT 6', [session['id_prestador']])
+    data6 = cur.fetchall()
+    return render_template('Prestador_edit_usuario.html', empleados = data[0], contadores = data5, alertas = data6)
 
 # Actualizar Usuario
 @app.route('/update_empleado_prestador/<id>',  methods = ['POST'])
@@ -1292,7 +1413,7 @@ def validarPatente():
     if request.method == 'POST':
         #asignar imagen a una variable
         placa = request.files.getlist('placa')
-        print('###################################################################3331313')
+        print('###################################################################')
         print(placa)
         #for para recorrer las imagenes agregadas
         for file in placa:
@@ -1377,7 +1498,7 @@ def validarPatente():
 
 @app.route('/cargaImagen')
 def AgregarPantete():
-    return render_template('lectura_documentos.html')
+    return render_template('lectura_documentos_copia.html')
 
 #metodo para leer imagen
 @app.route('/validarPatente_2', methods=['POST'])
@@ -1398,32 +1519,126 @@ def validarPatente_2():
           print('Texto: ',text)
           data = text
           remove(filename)
-          return render_template('lectura_documentos.html', texto = data)
+          return render_template('lectura_documentos_copia.html', texto = data)
 
 @app.route('/alerta')
 def Alertas():
   if 'nombre' in session:
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"' LIMIT 6')
+    cur.execute('SELECT * from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"' LIMIT 6')
     #cur.execute('SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1')
     data = cur.fetchall()
-    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'')
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'')
     #cur.execute('SELECT count(id_activo),patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END FROM activos WHERE habilitado = 1')
     data2 = cur.fetchall()
-    cur.execute('SELECT * from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'')
+    cur.execute('SELECT * from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'')
     data3 = cur.fetchall()
-    return render_template('alertaAdmin.html', alertas = data, contadores = data2, mensajes = data3)
+    return render_template('alertaAdmin.html', alertas = data, contadores = data2, mensajes = data3)         
 
-@app.route('/contadorAlerta')
-def contador():
+@app.route('/alerta_empresa')
+def Alertas_Empresa():
   if 'nombre' in session:
     cur = mysql.connection.cursor()
-    cur.execute('SELECT count(id_activo),patente,DATE_FORMAT(fecha_rev_tec, "%d/%m/%Y"), CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'REVISION VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA POR VENCIMIENTO'"' ELSE 3 END END,DATE_FORMAT(fecha_perm_circ, "%d/%m/%Y"), CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'PERMISO VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA POR VENCIMIENTO'"' ELSE 3 END END FROM activos WHERE habilitado = 1')
-    data = cur.fetchall()
-    print('######################')
-    print(data)
-    return render_template('layout_admin.html', contadores = data)
+    cur.execute('SELECT * from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"' LIMIT 6', [session['id_empresa']])
+    data6 = cur.fetchall()
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'', [session['id_empresa']])
+    data5 = cur.fetchall()
+    cur.execute('SELECT * from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_empresa = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'', [session['id_empresa']])
+    data3 = cur.fetchall()
+    return render_template('alertaEmpresa.html', alertas = data6, contadores = data5, mensajes = data3) 
+   
+@app.route('/alerta_prestador')
+def Alertas_Prestador():
+  if 'nombre' in session:
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT * from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_prestador = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"' LIMIT 6', [session['id_prestador']])
+    data6 = cur.fetchall()
+    cur.execute('SELECT COUNT(VIGENTE.id_activo) from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_prestador = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'', [session['id_prestador']])
+    data5 = cur.fetchall()
+    cur.execute('SELECT * from (SELECT id_activo,patente,fecha_rev_tec, CASE WHEN fecha_rev_tec < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_rev_tec >= CURRENT_DATE AND fecha_rev_tec <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioA'"',fecha_perm_circ, CASE WHEN fecha_perm_circ < CURRENT_DATE THEN '"'VENCIDO'"' ELSE CASE WHEN fecha_perm_circ >= CURRENT_DATE AND fecha_perm_circ <= DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY) THEN '"'ALERTA'"' ELSE '"'VIGENTE'"' END END AS '"'cambioB'"' FROM activos WHERE habilitado = 1 AND id_prestador = %s) AS VIGENTE WHERE VIGENTE.cambioA <> '"'VIGENTE'"' OR VIGENTE.cambioB <> '"'VIGENTE'"'', [session['id_prestador']])
+    data3 = cur.fetchall()
+    return render_template('alertaPrestador.html', alertas = data6, contadores = data5, mensajes = data3)   
+
+
+####################################################FORGOT##########################################################
+
+@app.route('/forgot', methods=["POST", "GET"])
+def forgot():
+  if 'nombre' in session:
+    return redirect('/')
+  if request.method == 'POST':
+    correo = request.form['correo']
+    print(correo)
+    token = str(uuid.uuid4())
+    cur = mysql.connection.cursor()
+    resultado = cur.execute("SELECT * FROM empleados WHERE habilitado = 1 AND correo = %s", [correo])
+    print(resultado)
+
+    if resultado > 0:
+      cur = mysql.connection.cursor()
+      cur.execute("UPDATE empleados SET token = %s WHERE correo = %s",[token, correo])
+      mysql.connection.commit()
+      cur = mysql.connection.cursor()
+      cur.execute("SELECT * FROM empleados WHERE habilitado = 1 AND correo = %s",[correo])
+      resultado2 = cur.fetchall()
+      flash('correo enviado')
+      msg = Message('Recuperación de contraseña',
+                    sender= "checkdrive9@gmail.com", 
+                    recipients=[correo])
+      msg.html = render_template('email.html', datos = resultado2)
+      mail.send(msg)
+      return redirect(url_for('codigo_validacion'))
+    else:
+        flash("correo equivocado", "alert-danger")
+
+  return render_template('forgot2.html')
+
+@app.route('/codigo_validacion', methods=["POST", "GET"])
+def codigo_validacion():
+  if 'nombre' in session:
+    return redirect('/')
+
+  if request.method == 'POST':
+    codigo = request.form['codigo']
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id_empleado, id_permiso FROM empleados WHERE habilitado = 1 AND token = %s",[codigo])
+    resultados = cur.fetchone()
+    session['id_permiso'] = resultados[1]
+    print(resultados[0])
+    if resultados != 0:
+      flash('Código correcto')  
+      return render_template('reset.html', data = resultados)
+    else:
+      flash('Código incorrecto')  
+  return render_template('codigo_validacion.html')
+
+
+#password = request.form['password']
+
+@app.route('/reset/<id>', methods = ["POST"])
+def reset(id):
+    if request.method == 'POST':
+      password = request.form['password']
+      password2 = request.form['password2']
+      if password == password2:
+        password_encode = password.encode("utf-8")
+        password_encriptado = bcrypt.hashpw(password_encode, semilla)
+        cur = mysql.connection.cursor()
+        cur.execute("""
+        UPDATE empleados 
+        SET password = %s
+          WHERE id_empleado = %s""",
+          (password_encriptado, id))
+        mysql.connection.commit()
+        return render_template('login.html')
+      else:
+        flash('contraseña incorrecta')
+        # return render_template('reset.html') 
+        return redirect(url_for('reset')) 
+
+
 
 
 if __name__ == '__main__':
-  app.run( port = 4500, debug = True)
+  app.run(port = 5500, debug = True)
+#  port = 5500, debug = True

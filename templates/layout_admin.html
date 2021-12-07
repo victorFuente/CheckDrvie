@@ -12,8 +12,7 @@
     <title>Check Driver Tablero Principal</title>
 
     <!-- Custom fonts for this template-->
-    <link href="{{ url_for('static', filename='vendor/fontawesome-free/css/all.min.css')}}" rel="stylesheet"
-        type="text/css">
+    <link href="{{ url_for('static', filename='vendor/fontawesome-free/css/all.min.css')}}" rel="stylesheet" type="text/css">
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
@@ -30,99 +29,98 @@
     <!-- Page Wrapper -->
     <div id="wrapper">
 
-        <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-success sidebar sidebar-dark accordion" id="accordionSidebar">
+              <!-- Sidebar -->
+              <ul class="navbar-nav bg-gradient-success sidebar sidebar-dark accordion" id="accordionSidebar">
 
-            <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/admin">
-                <div class="sidebar-brand-icon">
-                    <img src="../static/img/checkdriver-logo.png" />
+                <!-- Sidebar - Brand -->
+                <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/admin">
+                    <div class="sidebar-brand-icon">
+                          <img src="../static/img/checkdriver-logo.png"/>
+                    </div>
+                    
+                </a>
+    
+                <!-- Divider -->
+                <hr class="sidebar-divider my-0">
+    
+                <!-- Nav Item - Dashboard -->
+                <li class="nav-item active">
+                    <a class="nav-link" href="/admin">
+                        <i class="fas fa-fw fa-tachometer-alt"></i>
+                        <span>Tablero Principal</span></a>
+                </li>
+    
+                <!-- Divider -->
+                <hr class="sidebar-divider">
+    
+                <!-- Heading -->
+                <div class="sidebar-heading">
+                   Acciones
                 </div>
-
-            </a>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider my-0">
-
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
-                <a class="nav-link" href="/admin">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>tablero Principal</span></a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Acciones
-            </div>
-
-            <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link" href="/listar_empresa">
-                    <i class="fas fa-fw fa-user-plus"></i>
-                    <span>Agregar Empresa</span>
-                </a>
-
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/listar_prestador">
-                    <i class="fas fa-fw fa-user-plus"></i>
-                    <span>Agregar Prestador</span>
-                </a>
-            </li>
-
-            <!-- Nav Item - Utilities Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link" href="/listar_usuario">
-                    <i class="fas fa-fw fa-user-plus"></i>
-                    <span>Agregar Usuario</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/listar_activo">
-                    <i class="fas fa-fw fa-user-plus"></i>
-                    <span>Agregar Activo</span>
-                </a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Auditoria
-            </div>
-
-            <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link" href="/auditoria">
-                    <i class="fas fa-fw fa-chart-area"></i>
-                    <span>Auditoria</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/auditoria_usuario">
-                    <i class="fas fa-fw fa-chart-area"></i>
-                    <span>Auditoria Usuario</span>
-                </a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <!-- Sidebar Toggler (Sidebar) -->
-            <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle"></button>
-            </div>
-
-
-        </ul>
-
-        <!-- End of Sidebar -->
-        <!-- Content Wrapper -->
+    
+                <!-- Nav Item - Pages Collapse Menu -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/listar_empresa">
+                        <i class="fas fa-fw fa-user-plus"></i>
+                        <span>Agregar Empresa</span>
+                    </a>
+               
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/listar_prestador">
+                        <i class="fas fa-fw fa-user-plus"></i>
+                        <span>Agregar Prestador</span>
+                    </a>
+                </li>
+    
+                <!-- Nav Item - Utilities Collapse Menu -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/listar_usuario">
+                        <i class="fas fa-fw fa-user-plus"></i>
+                        <span>Agregar Usuario</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/listar_activo">
+                        <i class="fas fa-fw fa-user-plus"></i>
+                        <span>Agregar Activo</span>
+                    </a>
+                </li>
+    
+                <!-- Divider -->
+                <hr class="sidebar-divider">
+    
+                <!-- Heading -->
+                <div class="sidebar-heading">
+                    Auditoria
+                </div>
+    
+                <!-- Nav Item - Pages Collapse Menu -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/auditoria">
+                        <i class="fas fa-fw fa-chart-area"></i>
+                        <span>Auditoria</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auditoria_usuario">
+                        <i class="fas fa-fw fa-chart-area"></i>
+                        <span>Auditoria Usuario</span>
+                    </a>
+                </li>
+    
+                <!-- Divider -->
+                <hr class="sidebar-divider d-none d-md-block">
+    
+                <!-- Sidebar Toggler (Sidebar) -->
+                <div class="text-center d-none d-md-inline">
+                    <button class="rounded-circle border-0" id="sidebarToggle"></button>
+                </div>
+    
+    
+            </ul>
+            <!-- End of Sidebar -->
+                    <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
 
             <!-- Main Content -->
@@ -137,15 +135,12 @@
                     </button>
 
                     <!-- Topbar Navbar -->
-
                     <ul class="navbar-nav ml-auto">
-
                         <!-- Nav Item - Alerts -->
                         <li class="nav-item dropdown no-arrow mx-1">
                             <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-bell fa-fw"></i>
-                                <!-- Counter - Alerts -->
                                 {% for contador in contadores %}
                                 <span class="badge badge-danger badge-counter"> {{contador.0}} </span>
                                 {% endfor %}
@@ -235,7 +230,7 @@
                                     </div>
                                     
                                 </a>
-                                {% else %}
+                                {% elif alerta.5 == 'ALERTA' %}
                                 <a class="dropdown-item d-flex align-items-center" href="/blank">
                                     <div class="mr-3">
                                         <div class="icon-circle bg-warning">
@@ -259,58 +254,6 @@
                         </li>
 
 
-                        <!-- Nav Item - Messages -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-envelope fa-fw"></i>
-                                <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter">7</span>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="messagesDropdown">
-                                <h6 class="dropdown-header-check">
-                                    Centro de Mensajería
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="/blank">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle"
-                                            src="{{ url_for('static', filename='img/undraw_profile_1.svg')}}" alt="">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div class="font-weight-bold">
-                                        <div class="text-truncate">Ingreso de Vehículo </div>
-                                        <div class="small text-gray-500">Guardia 1 · 58m</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="/blank">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle"
-                                            src="{{ url_for('static', filename='img/undraw_profile_2.svg')}}" alt="">
-                                        <div class="status-indicator"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Ingreso de Vehículo </div>
-                                        <div class="small text-gray-500">Guardia 2 · 58d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="/blank">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle"
-                                            src="{{ url_for('static', filename='img/undraw_profile_3.svg')}}" alt="">
-                                        <div class="status-indicator bg-warning"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Ingreso de Vehículo </div>
-                                        <div class="small text-gray-500">Guardia 1 · 2d</div>
-                                    </div>
-                                </a>
-
-                                <a class="dropdown-item text-center small text-gray-500" href="/blank">Leer más
-                                    mensajes</a>
-                            </div>
-                        </li>
 
                         <div class="topbar-divider d-none d-sm-block"></div>
 
@@ -343,17 +286,16 @@
 
                     </ul>
 
-
                 </nav>
                 <!-- End of Topbar -->
 
-                {% block body %}
+            {% block body %}
 
 
 
 
 
-                {% endblock %}
+            {% endblock %}
 
                 <!-- Footer -->
                 <footer class="sticky-footer bg-white">
@@ -364,105 +306,102 @@
                     </div>
                 </footer>
                 <!-- End of Footer -->
-
-                <!-- Scroll to Top Button-->
-                <a class="scroll-to-top rounded" href="#page-top">
-                    <i class="fas fa-angle-up"></i>
-                </a>
-
-                <!--MODALS-->
-                <!-- Logout Modal-->
-                <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">¿Desea Cerrar Sesión?</h5>
-                                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">×</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">Seleccione "Cerrar" para cerrar la sesión.</div>
-                            <div class="modal-footer">
-                                <button class="btn btn-user btn-secondary" type="button"
-                                    data-dismiss="modal">Cancelar</button>
-                                <a class="btn btn-user btn-primary" href="/salir">Cerrar</a>
-                            </div>
-                        </div>
+                
+             <!-- Scroll to Top Button-->
+            <a class="scroll-to-top rounded" href="#page-top">
+                <i class="fas fa-angle-up"></i>
+            </a>    
+    
+            <!--MODALS-->
+            <!-- Logout Modal--> 
+            <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">¿Desea Cerrar Sesión?</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">Seleccione "Cerrar" para cerrar la sesión.</div>
+                    <div class="modal-footer">
+                        <button class="btn btn-user btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                        <a class="btn btn-user btn-primary" href="/salir">Cerrar</a>
                     </div>
                 </div>
-                <!-- Logout Modal-->
-                <!-- Agregar empresa-->
-                <div class="modal fade" id="ModalProveedor" tabindex="-1" role="dialog"
-                    aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Agregar Nueva Empresa</h5>
-                                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">×</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <form class="user" action="/add_empresa" method="POST"
-                                    onsubmit=" return ValidaEmpresa() ">
-                                    <div class="form-group row">
-                                        <div class="col-sm-6 mb-3 mb-sm-0">
-                                            <input type="text" class="form-control form-control-user" name="rut"
-                                                id="rut" placeholder="Rut">
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <input type="text" class="form-control form-control-user" name="nombre"
-                                                id="nombre" placeholder="Nombre">
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <div class="col-sm-6 mb-3 mb-sm-0">
-                                            <input type="text" class="form-control form-control-user" name="telefono"
-                                                id="telefono" placeholder="Teléfono">
-                                        </div>
-
-                                        <div class="col-sm-6 ">
-                                            <input type="email" class="form-control form-control-user" name="correo"
-                                                id="correo" placeholder="Correo Electrónico">
-                                        </div>
-                                    </div>
-
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-user btn-secondary" type="button"
-                                    data-dismiss="modal">Cancelar</button>
-                                <button class="btn btn-user btn-success" type="submit">Agregar</a>
-                            </div>
-                            </form>
-                        </div>
-                    </div>
+            </div>
+        </div>
+        <!-- Logout Modal-->    
+	    <!-- Agregar empresa-->
+        <div class="modal fade" id="ModalProveedor" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Agregar Nueva Empresa</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
                 </div>
-                <!--MODALS-->
+                <div class="modal-body">
+				            <form class="user" action="/add_empresa" method="POST" onsubmit=" return ValidaEmpresa() ">
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <input type="text" class="form-control form-control-user"  name="rut" id="rut"
+                                            placeholder="Rut">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control form-control-user"  name="nombre" id="nombre"
+                                            placeholder="Nombre">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <input type="text" class="form-control form-control-user" name="telefono"
+                                            id="telefono" placeholder="Teléfono">
+                                    </div>
+                                    
+                                    <div class="col-sm-6 ">
+                                            <input type="email" class="form-control form-control-user" name="correo" id="correo"
+                                            placeholder="Correo Electrónico">   
+                                    </div> 
+                                </div>
+
+				</div>
+                <div class="modal-footer">
+                    <button class="btn btn-user btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-user btn-success" type="submit">Agregar</a>
+                </div> 
+                </form>
+            </div>
+        </div>
+    </div>
+<!--MODALS-->
 
             </div>
             <!-- End of Content Wrapper -->
-
+    
         </div>
         <!-- End of Page Wrapper -->
-
+    
         <!-- Scroll to Top Button-->
         <a class="scroll-to-top rounded" href="#page-top">
             <i class="fas fa-angle-up"></i>
         </a>
-        <!-- Bootstrap core JavaScript-->
-        <script src="{{ url_for('static', filename='vendor/jquery/jquery.min.js')}}"></script>
-        <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+            <!-- Bootstrap core JavaScript-->
+    <script src="{{ url_for('static', filename='vendor/jquery/jquery.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
 
-        <!-- Core plugin JavaScript-->
-        <script src="{{ url_for('static', filename='vendor/jquery-easing/jquery.easing.min.js')}}"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="{{ url_for('static', filename='vendor/jquery-easing/jquery.easing.min.js')}}"></script>
 
-        <!-- Custom scripts for all pages-->
-        <script src="{{ url_for('static', filename='js/sb-admin-2.min.js')}}"></script>
+    <!-- Custom scripts for all pages-->
+    <script src="{{ url_for('static', filename='js/sb-admin-2.min.js')}}"></script>
 
-        <!-- Page level custom scripts -->
-        <script src="{{ url_for('static', filename='js/delete.js')}}"></script>
-        <script src="{{ url_for('static', filename='js/main.js')}}"></script>
+    <!-- Page level custom scripts -->
+    <script src="{{ url_for('static', filename='js/delete.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/main.js')}}"></script>
 
 </body>
 

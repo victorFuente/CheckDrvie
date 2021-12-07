@@ -255,9 +255,9 @@ function validaPrestador(){
 function validaActivo(){
 
     var patente = document.getElementById('patente');
-    var expPatente = /^[aA-zZ]{4}\-\d{2}$/
+    var expPatente = /^[aA-zZ]{4}\d{2}$/
     if (!patente.value.match(expPatente) || patente.value == "") {
-        alert("Patente es obligatorio, ejem: XXXX-11");
+        alert("Patente es obligatorio, ejem: XXXX11");
         patente.focus();
         return false;
     }

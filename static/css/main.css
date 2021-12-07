@@ -91,3 +91,19 @@ label {
 .alerta-proxima{background-color: #f6c23e; color:#fff; }
 .activo{background-color:#1cc88a; color: #fff;}
 .vencido{background-color:#e74a3b; color:#fff;}
+
+.links-tablero{text-decoration:none!important;}
+
+.img-rec-con{
+	position: absolute;
+    left: 150px;
+    top: 70px;
+}
+.img-rec-val{
+	position: absolute;
+	left: 150px;
+	top: 30px;
+}
+
+
+
